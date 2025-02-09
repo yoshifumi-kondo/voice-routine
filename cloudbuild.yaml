@@ -1,0 +1,36 @@
+steps:
+  # [1] app サービスの Docker イメージビルド＆プッシュ
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: 'packages/app'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/app:latest', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/app:latest']
+
+  # [2] web-client サービスの Docker イメージビルド＆プッシュ
+  - name: 'gcr.io/cloud-builders/docker'
+    dir: 'packages/web-client'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/web-client:latest', '.']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/web-client:latest']
+
+  # [3] (オプション) Cloud Run へのデプロイ（app サービス）
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      [
+        'gcloud', 'run', 'deploy', 'app-service',
+        '--image', 'gcr.io/$PROJECT_ID/app:latest',
+        '--region', 'YOUR_REGION',
+        '--platform', 'managed',
+        '--allow-unauthenticated'
+      ]
+
+  # [4] (オプション) Cloud Run へのデプロイ（web-client サービス）
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    args:
+      [
+        'gcloud', 'run', 'deploy', 'web-client-service',
+        '--image', 'gcr.io/$PROJECT_ID/web-client:latest',
+        '--region', 'YOUR_REGION',
+        '--platform', 'managed',
+        '--allow-unauthenticated'
+      ]

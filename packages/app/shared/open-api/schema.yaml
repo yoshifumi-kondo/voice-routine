@@ -1,0 +1,327 @@
+openapi: 3.0.0
+paths:
+  /calls/initiate:
+    post:
+      operationId: CallController_initiateCall
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: &ref_0
+        - calls
+  /calls/initiate-to-user:
+    post:
+      operationId: CallController_initiateCallToUser
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                    - CREATED
+                    - CONFIRMED
+              required:
+                - type
+      responses:
+        '201':
+          description: ''
+      security:
+        - bearer: []
+      summary: Initiate a call to a user
+      tags: *ref_0
+  /calls/webhook:
+    post:
+      operationId: CallController_handleCallWebhook
+      parameters:
+        - name: type
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: userId
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: callSid
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '201':
+          description: ''
+      tags: *ref_0
+  /calls/status:
+    post:
+      operationId: CallController_handleStatusCallback
+      parameters: []
+      responses:
+        '201':
+          description: ''
+      tags: *ref_0
+  /calls/today:
+    post:
+      operationId: CallController_handleToday
+      parameters:
+        - name: callSid
+          required: true
+          in: query
+          schema:
+            type: string
+        - name: userId
+          required: true
+          in: query
+          schema:
+            type: string
+      responses:
+        '201':
+          description: ''
+      tags: *ref_0
+  /audio/{fileId}:
+    get:
+      operationId: AudioController_getAudio
+      parameters:
+        - name: fileId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      tags:
+        - audio
+  /tasks:
+    get:
+      operationId: TaskController_getTasks
+      parameters: []
+      responses:
+        '200':
+          description: Return list of tasks.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: {}
+                    description:
+                      type: string
+                      minLength: 1
+                    createdAt: {}
+                    completed:
+                      type: boolean
+                    userId: {}
+                  required:
+                    - id
+                    - description
+                    - createdAt
+                    - completed
+                    - userId
+      security: &ref_1
+        - bearer: []
+      summary: Get tasks for the authenticated user
+      tags: &ref_2
+        - tasks
+    post:
+      operationId: TaskController_createTask
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  minLength: 1
+              required:
+                - description
+      responses:
+        '201':
+          description: ''
+      security: *ref_1
+      summary: Create a new task for the authenticated user
+      tags: *ref_2
+  /tasks/{taskId}:
+    patch:
+      operationId: TaskController_updateTask
+      parameters:
+        - name: taskId
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                completed:
+                  type: boolean
+                description:
+                  type: string
+      responses:
+        '200':
+          description: ''
+      security: *ref_1
+      summary: Update a task (e.g. mark as completed)
+      tags: *ref_2
+    delete:
+      operationId: TaskController_deleteTask
+      parameters:
+        - name: taskId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+      security: *ref_1
+      summary: Delete a task
+      tags: *ref_2
+  /call-schedule:
+    get:
+      operationId: CallScheduleController_getCallSchedule
+      parameters: []
+      responses:
+        '200':
+          description: Call schedule retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  userId: {}
+                  taskCreationCallTimeUTC:
+                    type: string
+                  taskConfirmCallTimeUTC:
+                    type: string
+                  callTimeZone:
+                    type: string
+                  createdAt: {}
+                  updatedAt: {}
+                required:
+                  - id
+                  - userId
+                  - taskCreationCallTimeUTC
+                  - taskConfirmCallTimeUTC
+                  - callTimeZone
+                  - createdAt
+                  - updatedAt
+      security: &ref_3
+        - bearer: []
+      summary: Get call schedule for the authenticated user
+      tags: &ref_4
+        - call-schedule
+    put:
+      operationId: CallScheduleController_updateCallSchedule
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                taskCreationCallTimeUTC:
+                  type: string
+                taskConfirmCallTimeUTC:
+                  type: string
+                callTimeZone:
+                  type: string
+              required:
+                - taskCreationCallTimeUTC
+                - taskConfirmCallTimeUTC
+                - callTimeZone
+      responses:
+        '200':
+          description: Call schedule updated
+          content:
+            application/json:
+              schema:
+                type: object
+      security: *ref_3
+      summary: Update call schedule for the authenticated user
+      tags: *ref_4
+  /users/signup:
+    post:
+      operationId: UserController_signUp
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  minLength: 1
+              required:
+                - token
+      responses:
+        '201':
+          description: User signed up successfully
+      summary: Sign up a new user using Firebase token
+      tags: &ref_5
+        - users
+  /users:
+    get:
+      operationId: UserController_getUser
+      parameters: []
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: {}
+                  createdAt: {}
+                required:
+                  - id
+                  - createdAt
+      security:
+        - bearer: []
+      summary: Get a user by userId
+      tags: *ref_5
+    delete:
+      operationId: UserController_resignUser
+      parameters: []
+      responses:
+        '200':
+          description: User resigned successfully
+      security:
+        - bearer: []
+      summary: Resign (delete) a user by userId
+      tags: *ref_5
+info:
+  title: Sample Calls API
+  description: API for Twilio call flow with Zod Validation
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+  schemas: {}
